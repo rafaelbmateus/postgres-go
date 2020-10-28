@@ -1,0 +1,35 @@
+version: "3.7"
+
+services:
+  app:
+    build: .
+    restart: on-failure
+    environment:
+      DB_HOST: "db"
+      DB_PORT: "5432"
+      DB_NAME: "database"
+      DB_USER: "user"
+      DB_PASSWORD: "secret"
+    command: go run cmd/main.go
+
+  db:
+    image: postgres:13-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: "database"
+      POSTGRES_USER: "user"
+      POSTGRES_PASSWORD: "secret"
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db/postgresql/data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "user@admin.com"
+      PGADMIN_DEFAULT_PASSWORD: "secret"
+    ports:
+      - "16543:80"
+    depends_on:
+      - db
